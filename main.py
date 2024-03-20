@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 
 '''模拟生成数据设置'''
 
-base_grade = 2  # 样品的真实值（数据生成的基准值）
+base_grade = 1  # 样品的真实值（数据生成的基准值）
 nose_error = 0.2  # 模拟电子鼻的测量误差
-mouth_error = 0.05  # 模拟电子舌的测量误差
+mouth_error = 0.01  # 模拟电子舌的测量误差
 
 data_counts = 10  # 生成数据数量
 
@@ -18,7 +18,7 @@ mouth_datas = np.random.uniform(base_grade * (1 - mouth_error), base_grade * (1 
 '''方法一,基于固定权重进行加权'''
 
 '''计算加权后的结果'''
-method1_values = 0.4 * nose_datas + 0.6 * mouth_datas
+method1_values = 0.5 * nose_datas + 0.5 * mouth_datas
 
 
 '''方法二,基于卡尔曼滤波器自动加权'''
@@ -65,6 +65,12 @@ for i in range(len(nose_datas)):
 # print("method2_values:", method2_values)
 
 
+mean1, var1 = np.mean(nose_datas), np.var(nose_datas)
+mean2, var2 = np.mean(mouth_datas), np.var(mouth_datas)
+
+mean_method1, var_method1 = np.mean(method1_values), np.var(method1_values)
+mean_method2, var_method2 = np.mean(method2_values), np.var(method2_values)
+
 '''开始绘图'''
 
 plt.rcParams['font.sans-serif'] = ['FangSong']  # 设置字体以便正确显示中文
@@ -89,6 +95,9 @@ tick_positions = [i for i, _ in enumerate(names)]  # 简单地使用枚举的索
 axs[0, 0].set_xticks(tick_positions)
 axs[0, 0].set_xticklabels(names)
 
+# 显示当前数据集的均值和方差
+axs[0, 0].text(0.8, 1.1, f'AVG: {mean1:.4f}\nVAR: {var1:.4f}', transform=axs[0, 0].transAxes, fontsize=8, va='top') 
+
 axs[0, 0].set_title('电子鼻直接读数')
 axs[0, 0].set_xlabel('测量次数')
 axs[0, 0].set_ylabel('测量结果')
@@ -100,6 +109,9 @@ axs[0, 1].bar(names, mouth_datas, bar_width, color='red')
 tick_positions = [i for i, _ in enumerate(names)]  # 简单地使用枚举的索引作为x轴刻度位置  
 axs[0, 1].set_xticks(tick_positions)
 axs[0, 1].set_xticklabels(names)
+
+# 显示当前数据集的均值和方差
+axs[0, 1].text(0.8, 1.1, f'AVG: {mean2:.4f}\nVAR: {var2:.4f}', transform=axs[0, 1].transAxes, fontsize=8, va='top') 
 
 axs[0, 1].set_title('电子舌直接读数')
 axs[0, 1].set_xlabel('测量次数')
@@ -122,6 +134,9 @@ for i, (name, value) in enumerate(zip(names, method1_values)):
 axs[1, 0].set_xticks([i - (len(names) - 1) * bar_width / 2 for i in range(len(names))])
 axs[1, 0].set_xticklabels(names)
 
+# 显示当前数据集的均值和方差
+axs[1, 0].text(0.8, 1.1, f'AVG: {mean_method1:.4f}\nVAR: {var_method1:.4f}', transform=axs[1, 0].transAxes, fontsize=8, va='top') 
+
 axs[1, 0].set_title('自定义参数固定加权')
 axs[1, 0].set_xlabel('测量次数')
 axs[1, 0].set_ylabel('数据融合结果')
@@ -142,6 +157,9 @@ for i, (name, value) in enumerate(zip(names, method2_values)):
 # 设置x轴的位置和标签
 axs[1, 1].set_xticks([i - (len(names) - 1) * bar_width / 2 for i in range(len(names))])
 axs[1, 1].set_xticklabels(names)
+
+# 显示当前数据集的均值和方差
+axs[1, 1].text(0.8, 1.1, f'AVG: {mean_method2:.4f}\nVAR: {var_method2:.4f}', transform=axs[1, 1].transAxes, fontsize=8, va='top') 
 
 axs[1, 1].set_title('卡尔曼滤波器自动加权')
 axs[1, 1].set_xlabel('测量次数')
