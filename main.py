@@ -7,7 +7,7 @@ base_grade = 100  # 样品的真实值（数据生成的基准值）
 nose_error = 0.2  # 模拟电子鼻的测量误差
 mouth_error = 0.05  # 模拟电子舌的测量误差
 
-data_counts = 20  # 生成数据数量
+data_counts = 10  # 生成数据数量
 
 # 模拟生成随机数据(基于偏差均匀分布)
 nose_datas = np.random.uniform(base_grade * (1 - nose_error), base_grade * (1 + nose_error), size=data_counts)
@@ -18,7 +18,7 @@ mouth_datas = np.random.uniform(base_grade * (1 - mouth_error), base_grade * (1 
 '''方法一,基于固定权重进行加权'''
 
 '''计算加权后的结果'''
-k1 = 0.3
+k1 = 0.4
 method1_values = k1 * nose_datas + (1-k1) * mouth_datas
 
 
@@ -97,7 +97,7 @@ axs[0, 0].set_xticks(tick_positions)
 axs[0, 0].set_xticklabels(names)
 
 # 显示当前数据集的均值和方差
-axs[0, 0].text(0.8, 1.12, f'均值: {mean1:.1f}\n方差: {var1:.1f}', transform=axs[0, 0].transAxes, fontsize=8, va='top') 
+axs[0, 0].text(0.8, 1.2, f'均值: {mean1:.1f}\n方差: {var1:.1f}\n误差: {100*nose_error:.2f}%', transform=axs[0, 0].transAxes, fontsize=8, va='top') 
 
 axs[0, 0].set_title('电子鼻直接读数')
 axs[0, 0].set_xlabel('测量次数')
@@ -112,7 +112,7 @@ axs[0, 1].set_xticks(tick_positions)
 axs[0, 1].set_xticklabels(names)
 
 # 显示当前数据集的均值和方差
-axs[0, 1].text(0.8, 1.12, f'均值: {mean2:.1f}\n方差: {var2:.1f}', transform=axs[0, 1].transAxes, fontsize=8, va='top') 
+axs[0, 1].text(0.8, 1.2, f'均值: {mean2:.1f}\n方差: {var2:.1f}\n误差: {100*mouth_error:.2f}%', transform=axs[0, 1].transAxes, fontsize=8, va='top') 
 
 axs[0, 1].set_title('电子舌直接读数')
 axs[0, 1].set_xlabel('测量次数')
