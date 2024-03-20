@@ -7,7 +7,7 @@ base_grade = 100  # 样品的真实值（数据生成的基准值）
 nose_error = 0.2  # 模拟电子鼻的测量误差
 mouth_error = 0.05  # 模拟电子舌的测量误差
 
-data_counts = 10  # 生成数据数量
+data_counts = 20  # 生成数据数量
 
 # 模拟生成随机数据(基于偏差均匀分布)
 nose_datas = np.random.uniform(base_grade * (1 - nose_error), base_grade * (1 + nose_error), size=data_counts)
@@ -18,7 +18,8 @@ mouth_datas = np.random.uniform(base_grade * (1 - mouth_error), base_grade * (1 
 '''方法一,基于固定权重进行加权'''
 
 '''计算加权后的结果'''
-method1_values = 0.5 * nose_datas + 0.5 * mouth_datas
+k1 = 0.3
+method1_values = k1 * nose_datas + (1-k1) * mouth_datas
 
 
 '''方法二,基于卡尔曼滤波器自动加权'''
@@ -119,9 +120,9 @@ axs[0, 1].set_ylabel('测量结果')
 
 # 循环遍历每个条形
 for i, (name, value) in enumerate(zip(names, method1_values)):
-    # 计算蓝色部分的高度（占40%）
-    blue_height = value * 0.4
-    # 计算红色部分的高度（占剩余的60%）
+    # 计算蓝色部分的高度
+    blue_height = value * k1
+    # 计算红色部分的高度
     red_height = value - blue_height
     # 计算条形的x位置（考虑条形宽度和间距）
     x_pos = i - (len(names) - 1) * bar_width / 2
@@ -135,7 +136,7 @@ axs[1, 0].set_xticks([i - (len(names) - 1) * bar_width / 2 for i in range(len(na
 axs[1, 0].set_xticklabels(names)
 
 # 显示当前数据集的均值和方差
-axs[1, 0].text(0.8, 1.12, f'均值: {mean_method1:.1f}\n方差: {var_method1:.1f}', transform=axs[1, 0].transAxes, fontsize=8, va='top') 
+axs[1, 0].text(0.8, 1.2, f'均值: {mean_method1:.1f}\n方差: {var_method1:.1f}\n权重: {k1:.2f}', transform=axs[1, 0].transAxes, fontsize=8, va='top') 
 
 axs[1, 0].set_title('自定义参数固定加权')
 axs[1, 0].set_xlabel('测量次数')
@@ -143,9 +144,9 @@ axs[1, 0].set_ylabel('数据融合结果')
 
 # 循环遍历每个条形
 for i, (name, value) in enumerate(zip(names, method2_values)):
-    # 计算蓝色部分的高度（占40%）
+    # 计算蓝色部分的高度
     blue_height = k[i] * value
-    # 计算红色部分的高度（占剩余的60%）
+    # 计算红色部分的高度
     red_height = value - blue_height
     # 计算条形的x位置（考虑条形宽度和间距）
     x_pos = i - (len(names) - 1) * bar_width / 2
@@ -159,7 +160,7 @@ axs[1, 1].set_xticks([i - (len(names) - 1) * bar_width / 2 for i in range(len(na
 axs[1, 1].set_xticklabels(names)
 
 # 显示当前数据集的均值和方差
-axs[1, 1].text(0.8, 1.12, f'均值: {mean_method2:.1f}\n方差: {var_method2:.1f}', transform=axs[1, 1].transAxes, fontsize=8, va='top') 
+axs[1, 1].text(0.8, 1.2, f'均值: {mean_method2:.1f}\n方差: {var_method2:.1f}\n权重: {k[data_counts-1]:.2f}', transform=axs[1, 1].transAxes, fontsize=8, va='top') 
 
 axs[1, 1].set_title('卡尔曼滤波器自动加权')
 axs[1, 1].set_xlabel('测量次数')
