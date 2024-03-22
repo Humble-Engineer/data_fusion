@@ -3,13 +3,13 @@ import matplotlib.pyplot as plt
 
 '''模拟生成数据设置'''
 
-base_grade = 100  # 样品的真实值（数据生成的基准值）
+base_grade = 100  # 样品的真实值，数据生成的均值μ
 
-nose_error  = 0.2   # 设置电子鼻测量的相对误差限
-mouth_error = 0.05  # 设置电子舌测量的相对误差限
+nose_error  = 0.2   # 设置电子鼻测量的相对误差限δ1
+mouth_error = 0.05  # 设置电子舌测量的相对误差限δ2
 
-nose_std_dev  = 5  # 设置电子鼻测量的标准差
-mouth_std_dev = 1  # 设置电子鼻测量的标准差
+nose_std_dev  = 5  # 设置电子鼻测量的标准差σ1
+mouth_std_dev = 1  # 设置电子鼻测量的标准差σ2
 
 data_counts = 20  # 生成数据的数量
 
@@ -22,15 +22,15 @@ k1 = 0.4
 
 '''用户设置部分结束'''
 
-
+# 基于预设的数据分布样式生成随机数据
 if data_type == "normal":
 
-    # 模拟生成随机数据(正态分布)
+    # 正态分布：X~N(μ，σ^2)
     nose_datas  = np.random.normal(base_grade, nose_std_dev,  size=data_counts)
     mouth_datas = np.random.normal(base_grade, mouth_std_dev, size=data_counts)
 
 else:
-    # 模拟生成随机数据(基于偏差均匀分布)
+    # 均匀分布：X~U(μ*(1-δ),μ*(1+δ))
     nose_datas  = np.random.uniform(base_grade*(1-nose_error),  base_grade*(1+nose_error),  size=data_counts)
     mouth_datas = np.random.uniform(base_grade*(1-mouth_error), base_grade*(1+mouth_error), size=data_counts)
 
@@ -117,7 +117,10 @@ axs[0, 0].set_xticks(tick_positions)
 axs[0, 0].set_xticklabels(names)
 
 # 显示当前数据集的均值和方差
-axs[0, 0].text(0.8, 1.2, f'均值: {mean1:.1f}\n方差: {var1:.1f}\n误差: {100*nose_error:.2f}%', transform=axs[0, 0].transAxes, fontsize=8, va='top') 
+if data_type == "normal":
+    axs[0, 0].text(0.75, 1.2, f'实际均值: {mean1:.1f}\n实际方差: {var1:.1f}\n预设方差: {np.square(nose_std_dev):d}', transform=axs[0, 0].transAxes, fontsize=8, va='top')
+else:
+    axs[0, 0].text(0.75, 1.2, f'实际均值: {mean1:.1f}\n实际方差: {var1:.1f}\n预设误差限: {100*nose_error:.1f}%', transform=axs[0, 0].transAxes, fontsize=8, va='top') 
 
 axs[0, 0].set_title('电子鼻直接读数')
 axs[0, 0].set_xlabel('测量次数')
@@ -129,10 +132,14 @@ axs[0, 1].bar(names, mouth_datas, bar_width, color='red')
 # 设置x轴刻度位置  
 tick_positions = [i for i, _ in enumerate(names)]  # 简单地使用枚举的索引作为x轴刻度位置  
 axs[0, 1].set_xticks(tick_positions)
-axs[0, 1].set_xticklabels(names)
+axs[0, 1].set_xticklabels(names) 
 
 # 显示当前数据集的均值和方差
-axs[0, 1].text(0.8, 1.2, f'均值: {mean2:.1f}\n方差: {var2:.1f}\n误差: {100*mouth_error:.2f}%', transform=axs[0, 1].transAxes, fontsize=8, va='top') 
+if data_type == "normal":
+    axs[0, 1].text(0.75, 1.2, f'实际均值: {mean2:.1f}\n实际方差: {var2:.1f}\n预设方差: {np.square(mouth_std_dev):d}', transform=axs[0, 1].transAxes, fontsize=8, va='top')
+else:
+    axs[0, 1].text(0.75, 1.2, f'实际均值: {mean2:.1f}\n实际方差: {var2:.1f}\n预设误差限: {100*mouth_error:.1f}%', transform=axs[0, 1].transAxes, fontsize=8, va='top') 
+
 
 axs[0, 1].set_title('电子舌直接读数')
 axs[0, 1].set_xlabel('测量次数')
@@ -156,9 +163,9 @@ axs[1, 0].set_xticks([i - (len(names) - 1) * bar_width / 2 for i in range(len(na
 axs[1, 0].set_xticklabels(names)
 
 # 显示当前数据集的均值和方差
-axs[1, 0].text(0.8, 1.2, f'均值: {mean_method1:.1f}\n方差: {var_method1:.1f}\n权重: {k1:.2f}', transform=axs[1, 0].transAxes, fontsize=8, va='top') 
+axs[1, 0].text(0.75, 1.2, f'实际均值: {mean_method1:.1f}\n实际方差: {var_method1:.1f}\n预设权重: {k1:.2f}', transform=axs[1, 0].transAxes, fontsize=8, va='top') 
 
-axs[1, 0].set_title('自定义参数固定加权')
+axs[1, 0].set_title('固定权重加权')
 axs[1, 0].set_xlabel('测量次数')
 axs[1, 0].set_ylabel('数据融合结果')
 
@@ -180,9 +187,9 @@ axs[1, 1].set_xticks([i - (len(names) - 1) * bar_width / 2 for i in range(len(na
 axs[1, 1].set_xticklabels(names)
 
 # 显示当前数据集的均值和方差
-axs[1, 1].text(0.8, 1.2, f'均值: {mean_method2:.1f}\n方差: {var_method2:.1f}\n权重: {k[data_counts-1]:.2f}', transform=axs[1, 1].transAxes, fontsize=8, va='top') 
+axs[1, 1].text(0.75, 1.2, f'实际均值: {mean_method2:.1f}\n实际方差: {var_method2:.1f}\n最终权重: {k[data_counts-1]:.2f}', transform=axs[1, 1].transAxes, fontsize=8, va='top') 
 
-axs[1, 1].set_title('卡尔曼滤波器自动加权')
+axs[1, 1].set_title('滤波器自动加权')
 axs[1, 1].set_xlabel('测量次数')
 axs[1, 1].set_ylabel('数据融合结果')
 
