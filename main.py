@@ -4,21 +4,41 @@ import matplotlib.pyplot as plt
 '''模拟生成数据设置'''
 
 base_grade = 100  # 样品的真实值（数据生成的基准值）
-nose_error = 0.2  # 模拟电子鼻的测量误差
-mouth_error = 0.05  # 模拟电子舌的测量误差
 
-data_counts = 10  # 生成数据数量
+nose_error  = 0.2   # 设置电子鼻测量的相对误差限
+mouth_error = 0.05  # 设置电子舌测量的相对误差限
 
-# 模拟生成随机数据(基于偏差均匀分布)
-nose_datas = np.random.uniform(base_grade * (1 - nose_error), base_grade * (1 + nose_error), size=data_counts)
-mouth_datas = np.random.uniform(base_grade * (1 - mouth_error), base_grade * (1 + mouth_error), size=data_counts)
+nose_std_dev  = 5  # 设置电子鼻测量的标准差
+mouth_std_dev = 1  # 设置电子鼻测量的标准差
 
+data_counts = 20  # 生成数据的数量
+
+# 设置模拟数据为正态分布或均匀分布
+data_type = "normal"    # 正态分布
+# data_type = "uniform"   # 均匀分布
+
+# 固定加权法传感器1的权重
+k1 = 0.4
+
+'''用户设置部分结束'''
+
+
+if data_type == "normal":
+
+    # 模拟生成随机数据(正态分布)
+    nose_datas  = np.random.normal(base_grade, nose_std_dev,  size=data_counts)
+    mouth_datas = np.random.normal(base_grade, mouth_std_dev, size=data_counts)
+
+else:
+    # 模拟生成随机数据(基于偏差均匀分布)
+    nose_datas  = np.random.uniform(base_grade*(1-nose_error),  base_grade*(1+nose_error),  size=data_counts)
+    mouth_datas = np.random.uniform(base_grade*(1-mouth_error), base_grade*(1+mouth_error), size=data_counts)
 
 
 '''方法一,基于固定权重进行加权'''
 
 '''计算加权后的结果'''
-k1 = 0.4
+
 method1_values = k1 * nose_datas + (1-k1) * mouth_datas
 
 
@@ -43,7 +63,7 @@ for n in range(2, len(mouth_datas)+1):
     mouth_variances.append(variance)  # 将方差添加到列表中
 # print("mouth_variances:", mouth_variances)
 
-# 计算两个传感器的方差之和,作为卡尔曼增益系数的分母
+# 计算两个传感器的方差之和,作为卡尔曼增益系数k的分母
 sum_variances = np.zeros(len(nose_datas)-1)
 for i in range(len(nose_datas)-1):
     sum_variances[i] = nose_variances[i] + mouth_variances[i]
@@ -72,7 +92,7 @@ mean2, var2 = np.mean(mouth_datas), np.var(mouth_datas)
 mean_method1, var_method1 = np.mean(method1_values), np.var(method1_values)
 mean_method2, var_method2 = np.mean(method2_values), np.var(method2_values)
 
-'''开始绘图'''
+'''绘图部分'''
 
 plt.rcParams['font.sans-serif'] = ['FangSong']  # 设置字体以便正确显示中文
 plt.rcParams['axes.unicode_minus'] = False  # 正确显示连字符
